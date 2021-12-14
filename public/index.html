@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Aula 2</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script>
+ 
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="title">Chat com web-socket</div>
+  <from id="chat">
+    <input type="text" name="username" placeholder="Digite o seu usuario">
+    <div class="messages"></div>
+    <input type="text" name="message" placeholder="Digite o sua mensagem">
+    <button type="submit" onclick="send()">Enviar</button>
+  </from>
+
+  <script type="text/javascript">
+
+    var socket = io('http://localhost:3000');
+
+    function renderMessages(message) {
+      $('.messages').append('<div class="message"> <strong>'+ message.user +'</strong>: '+ message.message +'</div>')
+    }
+
+    socket.on('previousMessages', function(messages) {
+      for(message of messages) {
+        renderMessages(message)
+      }
+    });
+
+    socket.on('receivedMessage', function(message) {
+      renderMessages(message);
+    });
+
+    function send() {
+      var user =  $('input[name=username]').val();
+      var message = $('input[name=message]').val();
+
+      
+      if ( user.length && message.length ) {
+        var messageObject = {
+          user: user,
+          message: message
+        };
+
+        renderMessages(messageObject);
+
+        socket.emit('sendMessage', messageObject);
+      }
+    }
+  </script>
+</body>
+</html>
